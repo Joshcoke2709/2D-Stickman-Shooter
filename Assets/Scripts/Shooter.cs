@@ -5,19 +5,19 @@ public class Shooter : MonoBehaviour
     public GameObject bulletPrefab;
     public Transform firePoint;
     public float bulletSpeed = 10f;
-    public float fireRate = 0.5f; //forced cooldown
+    public float fireRate = 0.5f;
 
     public GameObject muzzleFlashPrefab;
-    public float muzzleFlashDuration = 0.5f; //flash duration
+    public float muzzleFlashDuration = 0.5f;
 
     private float lastShotTime;
-    private bool isFacingRIght = true;
+    private bool isFacingRight = true;
 
     void Update()
     {
-        isFacingRIght = transform.localScale.x > 0;
-        //firePoint.localPosition = isFacingRIght ? new Vector2(0.9f, -0.48f) : new Vector2(-0.9f, -0.48f);
-        if (Input.GetMouseButtonDown(0))
+        isFacingRight = transform.localScale.x > 0;
+
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             if (Time.time - lastShotTime >= fireRate)
             {
@@ -26,31 +26,30 @@ public class Shooter : MonoBehaviour
             }
         }
     }
+
     void Shoot()
     {
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-        GameObject flash = Instantiate(muzzleFlashPrefab, firePoint.position, firePoint.rotation); // <--NEW (Muzzle flash now rotated to match firePoint)
-        flash.transform.SetParent(firePoint); // <--NEW (Flash follows gun tip)
-        Destroy(flash, muzzleFlashDuration);
 
-        // Vector2 direction = (Camera.main.ScreenToWorldPoint(Input.mousePosition) - firePoint.position).normalized;
-        //bullet.GetComponent<Rigidbody2D>().velocity = direction * bulletSpeed;
-
-        Vector2 shootDir = isFacingRIght ? Vector2.right : Vector2.left;
-
-        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-        rb.velocity = shootDir * bulletSpeed;
-
-        if (!isFacingRIght)
+        if (muzzleFlashPrefab != null)
         {
-            Vector3 bulletScale = bullet.transform.localScale;
-            bulletScale.x *= -1;
-            bullet.transform.localScale = bulletScale;
+            GameObject flash = Instantiate(muzzleFlashPrefab, firePoint.position, firePoint.rotation);
+            flash.transform.SetParent(firePoint);
+            Destroy(flash, muzzleFlashDuration);
         }
 
-        /*
-        Vector2 shootDir = isFacingRIght ? Vector2.right : Vector2.left; //Direction logic (if isfacingRight = true, then Vector2.right is true, else, Vector2.left.
-        bullet.GetComponent<Rigidbody2D>().velocity = shootDir * bulletSpeed; //applies direction for when the player if facing left*/
+        Vector2 shootDir = isFacingRight ? Vector2.right : Vector2.left;
 
+        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.velocity = shootDir * bulletSpeed;
+        }
+
+        Vector3 bulletScale = bullet.transform.localScale;
+        bulletScale.x = Mathf.Abs(bulletScale.x) * (isFacingRight ? 1 : -1);
+        bullet.transform.localScale = bulletScale;
+
+        bullet.transform.position = new Vector3(firePoint.position.x, firePoint.position.y, 0);
     }
 }
