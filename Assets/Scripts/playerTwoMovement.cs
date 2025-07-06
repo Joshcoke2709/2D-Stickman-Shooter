@@ -1,10 +1,10 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Player2Movement : MonoBehaviour
 {
     public float moveSpeed = 5f;
-    public float jumpoForce = 4f;
+    public float jumpForce = 9f;
+    public float slideSpeed = 6f;
     public Transform groundCheck;
     public LayerMask groundLayer;
 
@@ -15,50 +15,94 @@ public class Player2Movement : MonoBehaviour
     private bool isGrounded;
     private bool isFacingRight = true;
 
+    private float slideTimer;
+    private float slideDuration = 0.2f;
+
+    private float duckTimer;
+    private float duckDuration = 2f;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponentInChildren<Animator>();
-        visualTransform = transform.Find("Visual");
+        visualTransform = transform.Find("VisualP2");
     }
 
     private void Update()
     {
-        float move = Input.GetAxisRaw("Horizontal");// used for animations
-
-        //arrow keys for player2 movement 
+        // Movement input for arrow keys
         float horizontal = 0f;
         if (Input.GetKey(KeyCode.LeftArrow)) horizontal = -1f;
         else if (Input.GetKey(KeyCode.RightArrow)) horizontal = 1f;
 
+        bool downPressed = Input.GetKey(KeyCode.DownArrow);
+        bool downPressedThisFrame = Input.GetKeyDown(KeyCode.DownArrow);
+        bool upPressed = Input.GetKeyDown(KeyCode.UpArrow);
         bool isJumpPressed = Input.GetKey(KeyCode.UpArrow);
+
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
 
-        rb.velocity = new Vector2(horizontal * moveSpeed, rb.velocity.y); // mnovement controls
+        // Movement
+        rb.linearVelocity = new Vector2(horizontal * moveSpeed, rb.linearVelocity.y);
 
-        //animation controls
-        animator.SetBool("isWalking", horizontal != 0 && isGrounded);
-        animator.SetBool("isJumping", !isGrounded);
-
-        //flp the direction for visual 
-        if (horizontal > 0)
-        {
-            visualTransform.localScale = new Vector3(1, 1, 1);
-            isFacingRight = true;
-        }
-        else if (horizontal < 0)
-        {
-            visualTransform.localScale = new Vector3(-1, 1, 1);
-            isFacingRight = false;
-        }
-
-        //jump
+        // Jump
         if (isJumpPressed && isGrounded)
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpoForce);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             animator.SetTrigger("jumpTakeoff");
         }
 
+        // Walking animation
+        animator.SetBool("isWalking", horizontal != 0 && isGrounded && !animator.GetBool("isSliding") && !animator.GetBool("isDucking"));
+        animator.SetBool("isJumping", !isGrounded);
 
+        // Flip sprite
+          if (horizontal != 0)
+          {
+              Vector3 scale = visualTransform.localScale;
+              scale.x = horizontal > 0 ? -Mathf.Abs(scale.x) : Mathf.Abs(scale.x);
+              visualTransform.localScale = scale;
+              isFacingRight = horizontal > 0;
+          }
+
+        // Slide
+        if (downPressedThisFrame && horizontal != 0 && isGrounded && !animator.GetBool("isSliding"))
+        {
+            animator.SetBool("isSliding", true);
+            animator.SetBool("isDucking", false);
+            slideTimer = slideDuration;
+            rb.linearVelocity = new Vector2(horizontal * slideSpeed, rb.linearVelocity.y);
+        }
+
+        if (animator.GetBool("isSliding"))
+        {
+            slideTimer -= Time.deltaTime;
+            if (slideTimer <= 0)
+            {
+                animator.SetBool("isSliding", false);
+                animator.SetBool("isDucking", true);
+                duckTimer = duckDuration;
+                rb.linearVelocity = Vector2.zero;
+            }
+        }
+
+        // Duck
+        if (downPressed && horizontal == 0 && isGrounded && !animator.GetBool("isSliding"))
+        {
+            if (!animator.GetBool("isDucking"))
+            {
+                animator.SetBool("isDucking", true);
+                duckTimer = duckDuration;
+            }
+        }
+
+        if (animator.GetBool("isDucking"))
+        {
+            duckTimer -= Time.deltaTime;
+            if (!downPressed || duckTimer <= 0f || upPressed)
+            {
+                animator.SetBool("isDucking", false);
+            }
+        }
     }
 }

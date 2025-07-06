@@ -4,49 +4,42 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public float moveSpeed = 5f;
-    public float jumpForce = 4f;
+    public float jumpForce = 9f;
     public Transform groundCheck;
     public LayerMask groundLayer;
 
-    [SerializeField] private Transform visualTransform; 
-    //private Transform playerContainer;
+    [SerializeField] private Transform visualTransform;
 
     private Rigidbody2D rb;
     private Animator animator;
     private bool isGrounded;
-    private bool isFacingRight = true; 
-    
-
+    private bool isFacingRight = true;
 
     private float slideTimer;
-    private float slideDuration = 0.2f; // ← How long the slide lasts
-    public float slideSpeed = 6f; // Speed during sliding (ensures that the player moves while sliding)
+    private float slideDuration = 0.2f;
+    public float slideSpeed = 6f;
 
-    private float duckTimer; // ← NEW: time spent ducking
-    private float duckDuration = 2f; // ← NEW: how long player stays ducked
-
-    private Vector3 defaultScale = new Vector3(1, 1, 1); // Default scale for the player visual 
-    private Vector3 defaultOffset = new Vector3(0, 0f, 0);
+    private float duckTimer;
+    private float duckDuration = 2f;
 
     private float walkTime;
-    public float walkThreshold = 0.1f; // Time to wait before walking again
-
-
+    public float walkThreshold = 0.1f;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponentInChildren<Animator>(); // Looks for Animator on Visual child
+        animator = GetComponentInChildren<Animator>();
         visualTransform = transform.Find("Visual");
-        //playerContainer = transform.Find("Player");
-
     }
 
     void Update()
     {
-        float move = Input.GetAxisRaw("Horizontal");
-
+        //float move = Input.GetAxisRaw("Horizontal"); // A/D or Left/R
+        float move = 0f;
+        if (Input.GetKey(KeyCode.A)) move = -1f;
+        else if (Input.GetKey(KeyCode.D)) move = 1f;
         bool movePressed = move != 0;
+
         bool downPressed = Input.GetKey(KeyCode.S);
         bool downPressedThisFrame = Input.GetKeyDown(KeyCode.S);
         bool upPressed = Input.GetKeyDown(KeyCode.W);
@@ -55,118 +48,90 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
         animator.SetBool("isWalking", move != 0 && isGrounded && !animator.GetBool("isSliding") && !animator.GetBool("isDucking"));
 
-        // ← FIX: Restore horizontal movement
+        // Movement
         rb.linearVelocity = new Vector2(move * moveSpeed, rb.linearVelocity.y);
 
         if (move > 0)
-            visualTransform.localScale = new Vector3(1, 1, 1); // Facing right
+            visualTransform.localScale = new Vector3(1, 1, 1);
         else if (move < 0)
             visualTransform.localScale = new Vector3(-1, 1, 1);
-        ; // Facing left 
 
-        if (move != 0)
-        {
-            walkTime += Time.deltaTime;
+        walkTime = (move != 0) ? walkTime + Time.deltaTime : 0f;
 
-        }
-        else
-        {
-            walkTime = 0f; // Reset walk time if not moving
-        }
+        // Damping
+        rb.linearDamping = (isGrounded && move == 0) ? 5f : 0f;
 
-        if (isGrounded)
-        {
-            if (move == 0)
-                rb.linearDamping = 5f; // Apply drag only when grounded & not moving
-            else
-                rb.linearDamping = 0f;
-        }
-        else
-        {
-            rb.linearDamping = 0f; // Always 0 in the air 
-        }
-
-        // ← JUMP logic
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        // Jumping (using W)
+        if (upPressed && isGrounded)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            animator.SetTrigger("jumpTakeoff");
 
-            // ← FIX: Adjust animation speed based on jump movement
             float jumpAnimSpeed = Mathf.Clamp01(Mathf.Abs(rb.linearVelocity.x) / moveSpeed);
-            animator.speed = Mathf.Lerp(1.3f, 0.7f, jumpAnimSpeed); // Faster movement = slower animation
+            animator.speed = Mathf.Lerp(1.3f, 0.7f, jumpAnimSpeed);
         }
 
-        // ← FIX: Reset animation speed when grounded
         if (isGrounded && animator.speed != 1f)
         {
             animator.speed = 1f;
         }
 
-        // ← SLIDING begins when moving + down pressed
+        // Sliding
         if (downPressedThisFrame && movePressed && isGrounded && !animator.GetBool("isSliding"))
         {
             animator.SetBool("isSliding", true);
-            animator.SetBool("isDucking", false); // just in case
+            animator.SetBool("isDucking", false);
             slideTimer = slideDuration;
             rb.linearVelocity = new Vector2(move * slideSpeed, rb.linearVelocity.y);
         }
 
-        // ← SLIDING logic countdown
         if (animator.GetBool("isSliding"))
         {
             slideTimer -= Time.deltaTime;
             if (slideTimer <= 0)
             {
                 animator.SetBool("isSliding", false);
-                animator.SetBool("isDucking", true); // Transition to duck after slide
-                duckTimer = duckDuration; // ← NEW: start duck timer
-                rb.linearVelocity = Vector2.zero; // Stop sliding
+                animator.SetBool("isDucking", true);
+                duckTimer = duckDuration;
+                rb.linearVelocity = Vector2.zero;
             }
         }
 
-        // ← STAND UP from ducking
+        // Ducking
         if (upPressed && animator.GetBool("isDucking"))
         {
             animator.SetBool("isDucking", false);
         }
 
-        // ← Set ducking if holding down + NOT sliding + NOT moving
         if (isHoldingDown && move == 0 && isGrounded && !animator.GetBool("isSliding"))
         {
             if (!animator.GetBool("isDucking"))
             {
                 animator.SetBool("isDucking", true);
-                duckTimer = duckDuration; // ← NEW: reset duck timer
+                duckTimer = duckDuration;
             }
         }
 
-        // ← FIX: Auto exit duck after 2s or if key released
         if (animator.GetBool("isDucking"))
         {
             duckTimer -= Time.deltaTime;
-
             if (!isHoldingDown || duckTimer <= 0f || upPressed)
             {
                 animator.SetBool("isDucking", false);
             }
         }
-        if (Input.GetButtonDown("Jump") && isGrounded)
-        {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            animator.SetTrigger("jumpTakeoff");
-        }
-        //animator.SetBool("isWalking", move != 0 && isGrounded && !animator.GetBool("isSliding") && !animator.GetBool("isDucking"));
+
         animator.SetBool("isJumping", !isGrounded);
 
-        float moveInput = Input.GetAxisRaw("Horizontal");
-
-        if (moveInput != 0)
+        // Update facing direction
+        if (move != 0)
         {
             Vector3 visualScale = visualTransform.localScale;
-            visualScale.x = Mathf.Sign(moveInput);
+            visualScale.x = Mathf.Sign(move);
+            Mathf.Abs(visualScale.x); // Ensure scale is always positive
             visualTransform.localScale = visualScale;
 
-            isFacingRight = moveInput > 0;
+            isFacingRight = move > 0;
         }
     }
 }

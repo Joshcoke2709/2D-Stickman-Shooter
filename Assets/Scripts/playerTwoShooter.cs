@@ -13,16 +13,17 @@ public class Player2Shooter : MonoBehaviour
     private float lastShotTime;
     private bool isFacingRight = false;         // Starts facing LEFT since Player 2 is on the right
 
-    void Update()
+   void Update()
     {
-        isFacingRight = transform.localScale.x > 0;
+        //isFacingRight = transform.localScale.x > 0;
 
         if (Input.GetMouseButtonDown(0)) {
-        {
-            if (Time.time - lastShotTime >= fireRate)
             {
-                Shoot();
-                lastShotTime = Time.time;
+                if (Time.time - lastShotTime >= fireRate)
+                {
+                    Shoot();
+                    lastShotTime = Time.time;
+                }
             }
         }
     }
@@ -40,15 +41,7 @@ public class Player2Shooter : MonoBehaviour
 
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
         rb.gravityScale = 0; // Prevent falling
-        rb.velocity = shootDir * bulletSpeed;
-
-        // Flip bullet sprite visually
-        Vector3 bulletScale = bullet.transform.localScale;
-        bulletScale.x = Mathf.Abs(bulletScale.x) * (isFacingRight ? 1 : -1);
-        bullet.transform.localScale = bulletScale;
-
-        // Ensure bullet is on correct Z layer (optional)
-        bullet.transform.position = new Vector3(firePoint.position.x, firePoint.position.y, 0);
+        rb.linearVelocity = shootDir * bulletSpeed;
 
         // Auto-destroy bullet after time
         Destroy(bullet, 3f);

@@ -43,7 +43,7 @@ public class Shooter : MonoBehaviour
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            rb.velocity = shootDir * bulletSpeed;
+            rb.linearVelocity = shootDir * bulletSpeed;
         }
 
         Vector3 bulletScale = bullet.transform.localScale;
@@ -51,5 +51,7 @@ public class Shooter : MonoBehaviour
         bullet.transform.localScale = bulletScale;
 
         bullet.transform.position = new Vector3(firePoint.position.x, firePoint.position.y, 0);
+
+        Destroy(bullet, 3f);
     }
 }
