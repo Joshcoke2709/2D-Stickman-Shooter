@@ -40,7 +40,7 @@ public class Player2Movement : MonoBehaviour
         bool upPressed = Input.GetKeyDown(KeyCode.UpArrow);
         bool isJumpPressed = Input.GetKey(KeyCode.UpArrow);
 
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.3f, groundLayer);
 
         // Movement
         rb.linearVelocity = new Vector2(horizontal * moveSpeed, rb.linearVelocity.y);

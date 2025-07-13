@@ -1,31 +1,26 @@
 using UnityEngine;
 
-public class Explosion : MonoBehaviour
+public class BulletExplosion : MonoBehaviour
 {
-    //public float duration = 0.3f;
-    public float explosionRadius = 1.5f;
+    public GameObject explosionPrefab;
 
-    private void Start()
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        //Detect player in radius
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
-        foreach (var hit in hits)
+        Explode();
+        
+    }
+
+    private void Explode()
+    {
+        if (explosionPrefab != null)
         {
-            if (hit.CompareTag("Player1"))
-            {
-                var health = hit.GetComponent<PlayerHealth>();
-                if (health != null)
-                {
-                    health.RegisterHit();
-                }
-            }
+           GameObject explosionInstance =  Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+
+            Destroy(explosionInstance, 0.5f); // Destroy the explosion after 0.5 seconds
         }
-        Destroy(gameObject); //duration);
+
+        Destroy(gameObject); // destroy the bullet
+        //Destroy(explosionPrefab);
     }
 
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, explosionRadius);
-    }
 }

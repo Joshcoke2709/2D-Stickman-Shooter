@@ -29,7 +29,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponentInChildren<Animator>();
-        visualTransform = transform.Find("Visual");
+        visualTransform = transform.Find("Player1");
     }
 
     void Update()
@@ -122,6 +122,8 @@ public class PlayerMovement : MonoBehaviour
         }
 
         animator.SetBool("isJumping", !isGrounded);
+
+
 
         // Update facing direction
         if (move != 0)

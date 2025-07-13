@@ -1,6 +1,5 @@
-//using Microsoft.Unity.VisualStudio.Editor;
+
 using System.Collections;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,9 +7,9 @@ using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int maxHealth = 9;
+    public int maxHealth = 90;
     private int currentHealth;
-    private int currentHits = 0;
+    //private int currentHits = 0;
 
     public Image healthFillImage;
     public GameObject explosionPrefab;
@@ -19,39 +18,26 @@ public class PlayerHealth : MonoBehaviour
 
     private bool isDead = false;
 
+    //public ScoreManager scoreManager;
+
+
     void Start()
     {
         currentHealth = maxHealth;
         animator = GetComponentInChildren<Animator>();
 
-      UpdateHealthBar();
-      
+        UpdateHealthBar();
+
     }
     public void RegisterHit()
     {
+        if (isDead) return; // Ignore hits if already dead
+
         currentHealth--;
         animator.ResetTrigger("Hit");
         animator.SetTrigger("Hit");
 
         UpdateHealthBar();
-
-        if (currentHealth <= 0 && !isDead)
-        {
-            isDead = true;
-            animator.SetTrigger("Dead");
-
-            GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-
-            var p1Move = GetComponent<PlayerMovement>();
-            if (p1Move != null) p1Move.enabled = false;
-            var p2Move = GetComponent<Player2Movement>();
-            if (p2Move != null) p2Move.enabled = false;
-            var p1shooter = GetComponent<Shooter>();
-            if (p1shooter != null) p1shooter.enabled = false;
-            var p2shooter = GetComponent<Player2Shooter>();
-            if (p2shooter != null) p2shooter.enabled = false;
-
-        }
 
         if (currentHealth <= 0 && !isDead)
         {
@@ -66,7 +52,7 @@ public class PlayerHealth : MonoBehaviour
         float healthPercentage = (float)currentHealth / maxHealth;
 
         StartCoroutine(AnimateHealthBar(healthFillImage.fillAmount, healthPercentage));
-       //change the color based on health percentage
+        //change the color based on health percentage
         if (healthPercentage > 0.66f)
         {
             healthFillImage.color = Color.green;
@@ -84,7 +70,7 @@ public class PlayerHealth : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.CompareTag("Bullet"))
+        if (collision.CompareTag("Bullet"))
         {
             Debug.Log("Player hit by bullet!");
             RegisterHit();
@@ -107,13 +93,24 @@ public class PlayerHealth : MonoBehaviour
 
         healthFillImage.fillAmount = to; // Ensure it ends at the exact value
     }
+
+    public void ResetHealth()
+    {
+        currentHealth = maxHealth;
+        isDead = false;
+        UpdateHealthBar();
+        animator.ResetTrigger("Dead");
+        animator.Play("Idle"); // or your default state
+    }
+
+
     private void Die()
     {
-        animator.SetTrigger("Dead");
 
-        
         animator.SetTrigger("Dead");
-        GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        //scoreManager.PlayerDied(gameObject.tag);
+
+        GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
         var p1Move = GetComponent<PlayerMovement>();
         if (p1Move != null) p1Move.enabled = false;
         var p2Move = GetComponent<Player2Movement>();
@@ -125,13 +122,19 @@ public class PlayerHealth : MonoBehaviour
 
     }
 
-    private void OnTriggerEnter2D(Collider collision)
+    public void EnableControls()
     {
-        if(collision.CompareTag("Player1"))
-        {
-            Instantiate(explosionPrefab, transform.position, Quaternion.identity);  
-            Destroy(gameObject);
-        }
+
+        var p1Move = GetComponent<PlayerMovement>();
+        if (p1Move != null) p1Move.enabled = true;
+        var p2Move = GetComponent<Player2Movement>();
+        if (p2Move != null) p2Move.enabled = true;
+        var p1shooter = GetComponent<Shooter>();
+        if (p1shooter != null) p1shooter.enabled = true;
+        var p2shooter = GetComponent<Player2Shooter>();
+        if (p2shooter != null) p2shooter.enabled = true;
     }
+
+
 }
 
