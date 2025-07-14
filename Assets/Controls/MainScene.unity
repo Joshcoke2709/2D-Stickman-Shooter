@@ -411,7 +411,7 @@ GameObject:
   - component: {fileID: 154895604}
   m_Layer: 0
   m_Name: Player2
-  m_TagString: Untagged
+  m_TagString: Player2
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -517,6 +517,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   visualTransform: {fileID: 154895599}
+  animator: {fileID: 0}
+  hitbox: {fileID: 0}
 --- !u!114 &154895603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -550,6 +552,7 @@ MonoBehaviour:
   maxHealth: 3
   healthFillImage: {fileID: 170771657}
   explosionPrefab: {fileID: 4092961759285274866, guid: dd87de0468a399e4cbb7093b57b7079d, type: 3}
+  scoreManager: {fileID: 1341388697}
 --- !u!1 &170771655
 GameObject:
   m_ObjectHideFlags: 0
@@ -650,7 +653,7 @@ Transform:
   m_GameObject: {fileID: 192273946}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.54, y: -0.84, z: 0}
+  m_LocalPosition: {x: 0.127, y: -0.893, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1388,10 +1391,9 @@ GameObject:
   - component: {fileID: 1225434138}
   - component: {fileID: 1225434141}
   - component: {fileID: 1225434142}
-  - component: {fileID: 1225434143}
   m_Layer: 0
   m_Name: Player1
-  m_TagString: Untagged
+  m_TagString: Player1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1432,6 +1434,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   visualTransform: {fileID: 1225434137}
+  animator: {fileID: 0}
+  hitbox: {fileID: 0}
   slideSpeed: 3
   walkThreshold: 0.1
 --- !u!70 &1225434139
@@ -1531,74 +1535,7 @@ MonoBehaviour:
   maxHealth: 3
   healthFillImage: {fileID: 20444076}
   explosionPrefab: {fileID: 4092961759285274866, guid: dd87de0468a399e4cbb7093b57b7079d, type: 3}
---- !u!60 &1225434143
-PolygonCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1225434136}
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 0.1900374, y: 0.28181753}
-      - {x: 0.16569108, y: 0.49935594}
-      - {x: 0.006387502, y: 0.7632218}
-      - {x: -0.30920553, y: 0.8551567}
-      - {x: -0.71398616, y: 0.7141868}
-      - {x: -0.9068853, y: 0.32051215}
-      - {x: -0.62882406, y: -0.092935205}
-      - {x: -0.77766204, y: -0.39733624}
-      - {x: -0.73654413, y: -0.5425532}
-      - {x: -0.6533911, y: -0.5978329}
-      - {x: -0.51880985, y: -0.23788178}
-      - {x: -0.5994367, y: -0.75964516}
-      - {x: -0.5687097, y: -0.9235298}
-      - {x: -0.45850325, y: -0.8988319}
-      - {x: -0.38070515, y: -0.551518}
-      - {x: -0.2768893, y: -0.61125743}
-      - {x: -0.2577706, y: -0.88558805}
-      - {x: -0.040722176, y: -0.89522606}
-      - {x: -0.15943114, y: -0.42344084}
-      - {x: -0.17003398, y: -0.19483767}
-      - {x: 0.07324924, y: -0.033159062}
-  m_UseDelaunayMesh: 0
+  scoreManager: {fileID: 1341388697}
 --- !u!1 &1277665699
 GameObject:
   m_ObjectHideFlags: 0
@@ -1855,8 +1792,11 @@ MonoBehaviour:
   p2Score: 0
   p1ScoreText: {fileID: 1293193769}
   p2ScoreText: {fileID: 1898147173}
+  timer: {fileID: 532908059}
   p1Health: {fileID: 1225434142}
   p2Health: {fileID: 154895604}
+  p1Movement: {fileID: 1225434138}
+  p2Movement: {fileID: 154895602}
 --- !u!1 &1341388694
 GameObject:
   m_ObjectHideFlags: 0
@@ -1896,7 +1836,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1341388694}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3add8356cfcb27e4db2eda935da7e076, type: 3}
   m_Name: 
@@ -1905,8 +1845,11 @@ MonoBehaviour:
   p2Score: 0
   p1ScoreText: {fileID: 1293193769}
   p2ScoreText: {fileID: 1898147173}
+  timer: {fileID: 532908059}
   p1Health: {fileID: 1225434142}
   p2Health: {fileID: 154895604}
+  p1Movement: {fileID: 1225434138}
+  p2Movement: {fileID: 154895602}
 --- !u!1 &1413840493
 GameObject:
   m_ObjectHideFlags: 0
@@ -2329,6 +2272,7 @@ GameObject:
   - component: {fileID: 1898147172}
   - component: {fileID: 1898147174}
   - component: {fileID: 1898147173}
+  - component: {fileID: 1898147175}
   m_Layer: 5
   m_Name: p2Score
   m_TagString: Untagged
@@ -2454,6 +2398,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1898147171}
   m_CullTransparentMesh: 1
+--- !u!114 &1898147175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1898147171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3add8356cfcb27e4db2eda935da7e076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  p1Score: 0
+  p2Score: 0
+  p1ScoreText: {fileID: 1293193769}
+  p2ScoreText: {fileID: 1898147173}
+  timer: {fileID: 532908059}
+  p1Health: {fileID: 1225434142}
+  p2Health: {fileID: 154895604}
+  p1Movement: {fileID: 1225434138}
+  p2Movement: {fileID: 154895602}
 --- !u!1 &2100061323
 GameObject:
   m_ObjectHideFlags: 0

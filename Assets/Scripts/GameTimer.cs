@@ -48,18 +48,31 @@ public class GameTimer : MonoBehaviour
         Debug.Log("ROUND STARTED!");
     }
 
+    
+
     public void StopRound()
-    {
-        roundActive = false;
-        roundEnded = true;
-        timerText.color = waitingColor;
-        UpdateTimerUI();
-    }
+{
+    roundActive  = false;
+    roundEnded   = true;
+    timerText.color = waitingColor;
+}
+
+public void ResumeRound()
+{
+    //currentTime  = roundTime;     // reset the clock
+    roundActive  = true;
+    roundEnded   = false;
+    timerText.color = startColor;
+    //UpdateTimerUI();
+    Debug.Log("ROUND STARTED!");
+}
+
+
 
     public void TriggerGameOver()
     {
         roundEnded = true;
-        StopRound();
+        //StopRound();
         timerText.color = waitingColor;
     }
 
@@ -85,6 +98,7 @@ public class GameTimer : MonoBehaviour
 
     private void EndRound()
     {
+        StopRound();
         Debug.Log("Round ended!");
         timerText.text = "00";
     }

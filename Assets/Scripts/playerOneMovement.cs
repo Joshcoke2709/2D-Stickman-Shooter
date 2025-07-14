@@ -11,7 +11,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform visualTransform;
 
     private Rigidbody2D rb;
-    private Animator animator;
+    public Animator animator;
+    public Collider2D hitbox;
     private bool isGrounded;
     private bool isFacingRight = true;
 
@@ -29,7 +30,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponentInChildren<Animator>();
-        visualTransform = transform.Find("Player1");
+        visualTransform = transform.Find("Visual");
     }
 
     void Update()
@@ -135,5 +136,23 @@ public class PlayerMovement : MonoBehaviour
 
             isFacingRight = move > 0;
         }
+    }
+
+    public void ResetState()
+    {
+        // 1. Snap the animator back to your idle state
+        animator.Play("Idle");              // replace "Idle" with your exact state name
+
+        // 2. Reset any motion
+        if (rb != null)
+            rb.velocity = Vector2.zero;
+
+        // 3. If you’ve disabled colliders or controls on death, re-enable them:
+        var coll = GetComponent<Collider2D>();
+        if (coll != null)
+            coll.enabled = true;
+
+        // 4. Reset any flags you use for jumping, dashing, etc.
+        //    e.g. isGrounded = true; canDash = true; etc.
     }
 }

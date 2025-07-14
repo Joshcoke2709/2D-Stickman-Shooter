@@ -18,7 +18,7 @@ public class PlayerHealth : MonoBehaviour
 
     private bool isDead = false;
 
-    //public ScoreManager scoreManager;
+    public ScoreManager scoreManager;
 
 
     void Start()
@@ -43,6 +43,7 @@ public class PlayerHealth : MonoBehaviour
         {
             isDead = true;
             Die();
+            DisableControls();
         }
     }
 
@@ -99,16 +100,27 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = maxHealth;
         isDead = false;
         UpdateHealthBar();
+        EnableControls();
         animator.ResetTrigger("Dead");
-        animator.Play("Idle"); // or your default state
+        animator.Play("Idle");
     }
 
 
     private void Die()
     {
 
+
+        Debug.Log($"{gameObject.name} died – calling PlayerDied()");
+
+
+
         animator.SetTrigger("Dead");
-        //scoreManager.PlayerDied(gameObject.tag);
+        scoreManager.PlayerDied(gameObject.tag);
+
+        // [... play death animation, disable controls, etc. ...]
+        //FindObjectOfType<ScoreManager>().PlayerDied(this.gameObject.tag);
+
+
 
         GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
         var p1Move = GetComponent<PlayerMovement>();
@@ -135,6 +147,18 @@ public class PlayerHealth : MonoBehaviour
         if (p2shooter != null) p2shooter.enabled = true;
     }
 
+    public void DisableControls()
+    {
+        GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
+        var p1Move = GetComponent<PlayerMovement>();
+        var p2Move = GetComponent<Player2Movement>();
+        var p1shooter = GetComponent<Shooter>();
+        var p2shooter = GetComponent<Player2Shooter>();
+        if (p1Move != null) p1Move.enabled = false;
+        if (p2Move != null) p2Move.enabled = false;
+        if (p1shooter != null) p1shooter.enabled = false;
+        if (p2shooter != null) p2shooter.enabled = false;
+    }
 
 }
 

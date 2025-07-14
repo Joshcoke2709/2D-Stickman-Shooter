@@ -3,68 +3,75 @@ using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
-    public int p1Score = 0;
-    public int p2Score = 0;
-
-    public TextMeshProUGUI p1ScoreText;
-    public TextMeshProUGUI p2ScoreText;
+    public int p1Score, p2Score;
+    public TextMeshProUGUI p1ScoreText, p2ScoreText;
 
     public GameTimer timer;
-    public PlayerHealth p1Health;
-    public PlayerHealth p2Health;
-    public PlayerMovement playerMovement;
-    public Player2Movement player2Movement;
+    public PlayerHealth p1Health, p2Health;
+    public PlayerMovement p1Movement;
+    public Player2Movement p2Movement;
 
-    private bool gameEnded = false;
+    private bool gameEnded;
 
     public void PlayerDied(string playerTag)
     {
+
+        Debug.Log($"ScoreManager.PlayerDied({playerTag})");
+        // …
+
         if (gameEnded) return;
 
-        if (playerTag == "Player1")
-            p2Score++;
-        else if (playerTag == "Player2")
-            p1Score++;
+        // 1. Increment the *winner’s* score
+        if (playerTag == "Player1") p2Score++;
+        else if (playerTag == "Player2") p1Score++;
 
         UpdateScoreUI();
 
-        if (p1Score >= 3 || p2Score >= 3)
-        {
-            EndGame();
-        }
-        else
-        {
-            ResetRound();
-        }
+        // 2. Stop timer & schedule round reset
+        timer.StopRound();
+        Invoke(nameof(ResetRound), 2f);
     }
 
-    void UpdateScoreUI()
+    private void UpdateScoreUI()
     {
         p1ScoreText.text = p1Score.ToString();
         p2ScoreText.text = p2Score.ToString();
     }
 
-    void ResetRound()
+    private void ResetRound()
     {
-        timer.StopRound();
-        Invoke(nameof(ResumeGame), 2f);
-        Debug.Log("Round Reset!");
-    }
-
-    void ResumeGame()
-    {
+        // 1. Refill health
         p1Health.ResetHealth();
         p2Health.ResetHealth();
-        p1Health.EnableControls();
-        p2Health.EnableControls();
 
-        timer.Resume();
+        // 2. Reset visual state
+        p1Movement.ResetState();
+        p2Movement.ResetState();
+
+        // 3. Check for overall game end
+        if (p1Score >= 3 || p2Score >= 3)
+        {
+            gameEnded = true;
+            Debug.Log("Game Over!");
+            // TODO: show final winner UI
+            return;
+        }
+
+        // 4. Start next round
+        timer.ResumeRound();
+        Debug.Log("Next Round!");
     }
 
-    void EndGame()
+    private void GameOver()
     {
+        if (gameEnded) return;
         gameEnded = true;
+
         timer.StopRound();
-        Debug.Log("Game Over!");
+
+        p1Health.DisableControls();
+        p2Health.DisableControls();
+
+        Debug.Log("Game Over! Final Scores: P1: " + p1Score + ", P2: " + p2Score);
     }
 }
